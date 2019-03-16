@@ -10,7 +10,7 @@ install:
   - go get -v -t ./vlgo
 
 script:
-  - go test ./vlgo -cover -coverprofile=coverage.txt -covermode=atomic
+  - go test ./vlgo -race -coverprofile=coverage.txt -covermode=atomic
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
