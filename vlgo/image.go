@@ -65,3 +65,22 @@ func (client *Client) UploadIdentity(userId string, imagePath string) (*ImageUpl
 	}
 	return uploadResponse, resp, nil
 }
+
+func (client *Client) UploadProfile(userId string, imagePath string) (*ImageUploadResponse, *http.Response, error) {
+	extraParams := map[string]string{
+		"userId": userId,
+	}
+	req, err := FileUploadRequest(fmt.Sprintf("%s/image/uploadProfile", baseURL), extraParams, "file", imagePath)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to build request")
+	}
+	resp, err := client.httpClient.Do(req)
+	if err != nil {
+		return nil, resp, errors.Wrap(err, "request failed")
+	}
+	uploadResponse := new(ImageUploadResponse)
+	if err := json.NewDecoder(resp.Body).Decode(&uploadResponse); err != nil {
+		return nil, resp, errors.Wrap(err, "unmarshaling failed")
+	}
+	return uploadResponse, resp, nil
+}
