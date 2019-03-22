@@ -4,9 +4,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
+
+const (
+	baseURL = "https://api.verifid.app/v1"
+)
+
+type Client struct {
+	httpClient *http.Client
+}
 
 type User struct {
 	Country      string `json:"country"`
@@ -33,22 +42,19 @@ func UserToJson(user User) []byte {
 	return b
 }
 
-func SendUserData(user User) (*UserResponse, *http.Response, error) {
+func (client *Client) SendUserData(user User) (*UserResponse, *http.Response, error) {
 	b := UserToJson(user)
-	resp, err := http.Post("https://api.verifid.app/v1/user/sendData", "application/json", bytes.NewBuffer(b))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/user/sendData", baseURL), bytes.NewBufferString(string(b)))
 	if err != nil {
-		return nil, resp, err
+		return nil, nil, errors.Wrap(err, "failed to build request")
 	}
-	body, err := ioutil.ReadAll(resp.Body)
-	responseString := string(body)
-	fmt.Println(responseString)
+	resp, err := client.httpClient.Do(req)
 	if err != nil {
-		return nil, resp, err
+		return nil, resp, errors.Wrap(err, "request failed")
 	}
 	userResponse := new(UserResponse)
-	err = json.Unmarshal(body, &userResponse)
-	if err != nil {
-		return nil, resp, err
+	if err := json.NewDecoder(resp.Body).Decode(&userResponse); err != nil {
+		return nil, resp, errors.Wrap(err, "unmarshaling failed")
 	}
 	return userResponse, resp, nil
 }
