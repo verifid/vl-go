@@ -19,7 +19,7 @@ func TestUploadIdentity(t *testing.T) {
 	defer teardown()
 
 	client := new(Client)
-	client.httpClient = httpClient
+	client.HttpClient = httpClient
 
 	path := path.Dir("../resources/2.png")
 	uploadResponse, resp, err := client.UploadIdentity("userId", path)
@@ -39,7 +39,7 @@ func TestUploadProfile(t *testing.T) {
 	defer teardown()
 
 	client := new(Client)
-	client.httpClient = httpClient
+	client.HttpClient = httpClient
 
 	path := path.Dir("../resources/2.png")
 	uploadResponse, resp, err := client.UploadProfile("userId", path)

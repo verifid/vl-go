@@ -62,7 +62,7 @@ func (client *Client) UploadIdentity(userId string, imagePath string) (*ImageUpl
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to build request")
 	}
-	resp, err := client.httpClient.Do(req)
+	resp, err := client.HttpClient.Do(req)
 	if err != nil {
 		return nil, resp, errors.Wrap(err, "request failed")
 	}
@@ -84,7 +84,7 @@ func (client *Client) UploadProfile(userId string, imagePath string) (*ImageUplo
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to build request")
 	}
-	resp, err := client.httpClient.Do(req)
+	resp, err := client.HttpClient.Do(req)
 	if err != nil {
 		return nil, resp, errors.Wrap(err, "request failed")
 	}

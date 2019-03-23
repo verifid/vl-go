@@ -15,7 +15,7 @@ const (
 
 // Contains a http client where we use for all requests.
 type Client struct {
-	httpClient *http.Client
+	HttpClient *http.Client
 }
 
 // Request body for sending user data.
@@ -55,7 +55,7 @@ func (client *Client) SendUserData(user User) (*UserResponse, *http.Response, er
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to build request")
 	}
-	resp, err := client.httpClient.Do(req)
+	resp, err := client.HttpClient.Do(req)
 	if err != nil {
 		return nil, resp, errors.Wrap(err, "request failed")
 	}

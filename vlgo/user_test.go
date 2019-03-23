@@ -77,7 +77,7 @@ func TestSendUserData(t *testing.T) {
 	defer teardown()
 
 	client := new(Client)
-	client.httpClient = httpClient
+	client.HttpClient = httpClient
 
 	userResponse, resp, err := client.SendUserData(user)
 	assert.Nil(t, err)
