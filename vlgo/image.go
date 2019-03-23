@@ -13,12 +13,16 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Response model for image upload.
 type ImageUploadResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Type    string `json:"type"`
 }
 
+// Creates http request to use file upload.
+// Takes url, parameters, parameter name and file path.
+// Returns http request and error.
 func FileUploadRequest(url string, params map[string]string, paramName, path string) (*http.Request, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -47,6 +51,9 @@ func FileUploadRequest(url string, params map[string]string, paramName, path str
 	return req, err
 }
 
+// Uploads identity image of user.
+// Takes user id and image path as parameters.
+// Returns image upload response, http response and error.
 func (client *Client) UploadIdentity(userId string, imagePath string) (*ImageUploadResponse, *http.Response, error) {
 	extraParams := map[string]string{
 		"userId": userId,
@@ -66,6 +73,9 @@ func (client *Client) UploadIdentity(userId string, imagePath string) (*ImageUpl
 	return uploadResponse, resp, nil
 }
 
+// Uploads profile image of user.
+// Takes user id and image path as parameters.
+// Returns image upload response, http response and error.
 func (client *Client) UploadProfile(userId string, imagePath string) (*ImageUploadResponse, *http.Response, error) {
 	extraParams := map[string]string{
 		"userId": userId,
