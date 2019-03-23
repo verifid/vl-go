@@ -13,10 +13,12 @@ const (
 	baseURL = "https://api.verifid.app/v1"
 )
 
+// Contains a http client where we use for all requests.
 type Client struct {
 	httpClient *http.Client
 }
 
+// Request body for sending user data.
 type User struct {
 	Country      string `json:"country"`
 	DateOfBirth  string `json:"dateOfBirth"`
@@ -26,6 +28,7 @@ type User struct {
 	Surname      string `json:"surname"`
 }
 
+// Response model for user data.
 type UserResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -33,6 +36,7 @@ type UserResponse struct {
 	UserId  string `json:"user_id"`
 }
 
+// Marshalling user struct.
 func UserToJson(user User) []byte {
 	b, err := json.Marshal(user)
 	if err != nil {
@@ -42,6 +46,9 @@ func UserToJson(user User) []byte {
 	return b
 }
 
+// Sends user data using with Client.
+// Takes user as a parameter.
+// Returns user response, http response and error.
 func (client *Client) SendUserData(user User) (*UserResponse, *http.Response, error) {
 	b := UserToJson(user)
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/user/sendData", baseURL), bytes.NewBufferString(string(b)))
