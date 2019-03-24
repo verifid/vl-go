@@ -33,7 +33,7 @@ type UserResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Type    string `json:"type"`
-	UserId  string `json:"user_id"`
+	UserId  string `json:"user_id,omitempty"`
 }
 
 // Marshalling user struct.
