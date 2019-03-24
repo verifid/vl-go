@@ -19,12 +19,14 @@
 The `vlgo` package provides a `Client` for accessing the VerifID vl API. Here are some example requests.
 
 ```go
+// vlgo client
 client := new(vlgo.Client)
 var httpClient = &http.Client{
     Timeout: time.Second * 15,
 }
 client.HttpClient = httpClient
 
+// Send User Data
 user := User{
     Country:      "United States",
     DateOfBirth:  "10.04.1980",
@@ -32,6 +34,11 @@ user := User{
     Name:         "Tony",
     PlaceOfBirth: "New York",
     Surname:      "Stark"}
-userResponse := new(UserResponse)
 userResponse, resp, err := client.SendUserData(user)
+
+// Upload User Identity Image
+uploadResponse, resp, err := client.UploadIdentity("userId", "imagePath")
+
+// Upload User Profile Image
+uploadResponse, resp, err := client.UploadProfile("userId", "imagePath")
 ```
