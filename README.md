@@ -11,7 +11,7 @@
 
 ## Install
 
-    go get github.com/verifid/vlgo/vlgo
+    go get github.com/verifid/vl-go/vlgo
 
 ## Usage
 
