@@ -13,14 +13,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Response model for image upload.
+// ImageUploadResponse is response model for image upload.
 type ImageUploadResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Type    string `json:"type"`
 }
 
-// Creates http request to use file upload.
+// FileUploadRequest creates http request to use file upload.
 // Takes url, parameters, parameter name and file path.
 // Returns http request and error.
 func FileUploadRequest(url string, params map[string]string, paramName, path string) (*http.Request, error) {
@@ -51,18 +51,18 @@ func FileUploadRequest(url string, params map[string]string, paramName, path str
 	return req, err
 }
 
-// Uploads identity image of user.
+// UploadIdentity uploads identity image of user.
 // Takes user id and image path as parameters.
 // Returns image upload response, http response and error.
-func (client *Client) UploadIdentity(userId string, imagePath string) (*ImageUploadResponse, *http.Response, error) {
+func (client *Client) UploadIdentity(userID string, imagePath string) (*ImageUploadResponse, *http.Response, error) {
 	extraParams := map[string]string{
-		"userId": userId,
+		"userId": userID,
 	}
 	req, err := FileUploadRequest(fmt.Sprintf("%s/image/uploadIdentity", baseURL), extraParams, "file", imagePath)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to build request")
 	}
-	resp, err := client.HttpClient.Do(req)
+	resp, err := client.HTTPClient.Do(req)
 	if err != nil {
 		return nil, resp, errors.Wrap(err, "request failed")
 	}
@@ -73,18 +73,18 @@ func (client *Client) UploadIdentity(userId string, imagePath string) (*ImageUpl
 	return uploadResponse, resp, nil
 }
 
-// Uploads profile image of user.
+// UploadProfile uploads profile image of user.
 // Takes user id and image path as parameters.
 // Returns image upload response, http response and error.
-func (client *Client) UploadProfile(userId string, imagePath string) (*ImageUploadResponse, *http.Response, error) {
+func (client *Client) UploadProfile(userID string, imagePath string) (*ImageUploadResponse, *http.Response, error) {
 	extraParams := map[string]string{
-		"userId": userId,
+		"userId": userID,
 	}
 	req, err := FileUploadRequest(fmt.Sprintf("%s/image/uploadProfile", baseURL), extraParams, "file", imagePath)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to build request")
 	}
-	resp, err := client.HttpClient.Do(req)
+	resp, err := client.HTTPClient.Do(req)
 	if err != nil {
 		return nil, resp, errors.Wrap(err, "request failed")
 	}

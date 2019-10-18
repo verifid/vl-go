@@ -13,31 +13,29 @@ const (
 	baseURL = "https://api.verifid.app/v1"
 )
 
-// Contains a http client where we use for all requests.
+// Client contains a http client where we use for all requests.
 type Client struct {
-	HttpClient *http.Client
+	HTTPClient *http.Client
 }
 
-// Request body for sending user data.
+// User is request body for sending user data.
 type User struct {
-	Country      string `json:"country"`
-	DateOfBirth  string `json:"dateOfBirth"`
-	Gender       string `json:"gender"`
-	Name         string `json:"name"`
-	PlaceOfBirth string `json:"placeOfBirth"`
-	Surname      string `json:"surname"`
+	Country     string `json:"country"`
+	DateOfBirth string `json:"dateOfBirth"`
+	Name        string `json:"name"`
+	Surname     string `json:"surname"`
 }
 
-// Response model for user data.
+// UserResponse is the response model for user data.
 type UserResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Type    string `json:"type"`
-	UserId  string `json:"userId,omitempty"`
+	UserID  string `json:"userId,omitempty"`
 }
 
-// Marshalling user struct.
-func UserToJson(user User) []byte {
+// UserToJSON marshallsuser struct.
+func UserToJSON(user User) []byte {
 	b, err := json.Marshal(user)
 	if err != nil {
 		fmt.Println(err)
@@ -46,16 +44,16 @@ func UserToJson(user User) []byte {
 	return b
 }
 
-// Sends user data using with Client.
+// SendUserData sends user data using with Client.
 // Takes user as a parameter.
 // Returns user response, http response and error.
 func (client *Client) SendUserData(user User) (*UserResponse, *http.Response, error) {
-	b := UserToJson(user)
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/user/sendData", baseURL), bytes.NewBufferString(string(b)))
+	b := UserToJSON(user)
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/user/sendUserData", baseURL), bytes.NewBufferString(string(b)))
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to build request")
 	}
-	resp, err := client.HttpClient.Do(req)
+	resp, err := client.HTTPClient.Do(req)
 	if err != nil {
 		return nil, resp, errors.Wrap(err, "request failed")
 	}
