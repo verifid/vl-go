@@ -1,4 +1,4 @@
-# vl-go [![Build Status](https://travis-ci.org/verifid/vl-go.svg?branch=master)](https://travis-ci.org/verifid/vl-go) [![GoDoc](https://godoc.org/github.com/verifid/vl-go/vlgo?status.svg)](https://godoc.org/github.com/verifid/vl-go/vlgo)
+# vl-go [![Build Status](https://travis-ci.org/verifid/vl-go.svg?branch=master)](https://travis-ci.org/verifid/vl-go) [![GoDoc](https://godoc.org/github.com/verifid/vl-go/vlgo?status.svg)](https://godoc.org/github.com/verifid/vl-go/vlgo) [![Go Report Card](https://goreportcard.com/badge/verifid/vl-go)](https://goreportcard.com/report/verifid/vl-go)
 
 
 **vlgo** is a http wrapper for identity verification layer. For now it has 4 main functions which is enough to verify user's identity.
