@@ -1,17 +1,22 @@
 package vlgo
 
 import (
+	"bufio"
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
-	"mime/multipart"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	"github.com/pkg/errors"
 )
+
+// ImageUpload is request model for image upload.
+type ImageUpload struct {
+	Image  string `json:"image"`
+	UserID string `json:"userId"`
+}
 
 // ImageUploadResponse is response model for image upload.
 type ImageUploadResponse struct {
@@ -20,77 +25,67 @@ type ImageUploadResponse struct {
 	Type    string `json:"type"`
 }
 
-// FileUploadRequest creates http request to use file upload.
-// Takes url, parameters, parameter name and file path.
-// Returns http request and error.
-func FileUploadRequest(url string, params map[string]string, paramName, path string) (*http.Request, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+// ImageFileToBase64 read image file and creates base64 encoded string.
+func (client *Client) ImageFileToBase64(filePath string) string {
+	imgFile, err := os.Open(filePath)
 
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile(paramName, filepath.Base(path))
 	if err != nil {
-		return nil, err
-	}
-	_, err = io.Copy(part, file)
-
-	for key, val := range params {
-		_ = writer.WriteField(key, val)
-	}
-	err = writer.Close()
-	if err != nil {
-		return nil, err
+		fmt.Println(err)
+		return ""
 	}
 
-	req, err := http.NewRequest("POST", url, body)
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	return req, err
+	defer imgFile.Close()
+
+	// create a new buffer base on file size
+	fInfo, _ := imgFile.Stat()
+	var size int64 = fInfo.Size()
+	buf := make([]byte, size)
+
+	// read file content into buffer
+	fReader := bufio.NewReader(imgFile)
+	fReader.Read(buf)
+
+	// convert the buffer bytes to base64 string - use buf.Bytes() for new image
+	imgBase64Str := base64.StdEncoding.EncodeToString(buf)
+	return imgBase64Str
+}
+
+func imageModelToJSON(imageUpload ImageUpload) []byte {
+	b, err := json.Marshal(imageUpload)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return b
+}
+
+func (client *Client) uploadImage(imageUpload ImageUpload, imageType Enum) (*ImageUploadResponse, *http.Response, error) {
+	b := imageModelToJSON(imageUpload)
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/image/%s", baseURL, Enum.ValueOfImageType(imageType)), bytes.NewBufferString(string(b)))
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to build request")
+	}
+	resp, err := client.HTTPClient.Do(req)
+	if err != nil {
+		return nil, resp, errors.Wrap(err, "request failed")
+	}
+	imageUploadResponse := new(ImageUploadResponse)
+	if err := json.NewDecoder(resp.Body).Decode(&imageUploadResponse); err != nil {
+		return nil, resp, errors.Wrap(err, "unmarshaling failed")
+	}
+	return imageUploadResponse, resp, nil
 }
 
 // UploadIdentity uploads identity image of user.
 // Takes user id and image path as parameters.
 // Returns image upload response, http response and error.
-func (client *Client) UploadIdentity(userID string, imagePath string) (*ImageUploadResponse, *http.Response, error) {
-	extraParams := map[string]string{
-		"userId": userID,
-	}
-	req, err := FileUploadRequest(fmt.Sprintf("%s/image/uploadIdentity", baseURL), extraParams, "file", imagePath)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to build request")
-	}
-	resp, err := client.HTTPClient.Do(req)
-	if err != nil {
-		return nil, resp, errors.Wrap(err, "request failed")
-	}
-	uploadResponse := new(ImageUploadResponse)
-	if err := json.NewDecoder(resp.Body).Decode(&uploadResponse); err != nil {
-		return nil, resp, errors.Wrap(err, "unmarshaling failed")
-	}
-	return uploadResponse, resp, nil
+func (client *Client) UploadIdentity(imageUpload ImageUpload, imageType Enum) (*ImageUploadResponse, *http.Response, error) {
+	return client.uploadImage(imageUpload, imageType)
 }
 
 // UploadProfile uploads profile image of user.
 // Takes user id and image path as parameters.
 // Returns image upload response, http response and error.
-func (client *Client) UploadProfile(userID string, imagePath string) (*ImageUploadResponse, *http.Response, error) {
-	extraParams := map[string]string{
-		"userId": userID,
-	}
-	req, err := FileUploadRequest(fmt.Sprintf("%s/image/uploadProfile", baseURL), extraParams, "file", imagePath)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to build request")
-	}
-	resp, err := client.HTTPClient.Do(req)
-	if err != nil {
-		return nil, resp, errors.Wrap(err, "request failed")
-	}
-	uploadResponse := new(ImageUploadResponse)
-	if err := json.NewDecoder(resp.Body).Decode(&uploadResponse); err != nil {
-		return nil, resp, errors.Wrap(err, "unmarshaling failed")
-	}
-	return uploadResponse, resp, nil
+func (client *Client) UploadProfile(imageUpload ImageUpload, imageType Enum) (*ImageUploadResponse, *http.Response, error) {
+	return client.uploadImage(imageUpload, imageType)
 }
