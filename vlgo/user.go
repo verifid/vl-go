@@ -26,7 +26,7 @@ type User struct {
 	Surname     string `json:"surname"`
 }
 
-// UserResponse is the response model for user data.
+// UserResponse is the response model of send user data request.
 type UserResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -34,10 +34,16 @@ type UserResponse struct {
 	UserID  string `json:"userId,omitempty"`
 }
 
-// VerifyUser is request model for user verification.
+// VerifyUser is request model of user verification.
 type VerifyUser struct {
 	UserID   string `json:"userId"`
 	Language string `json:"language"`
+}
+
+// UserVerificationResponse is response model of user verification request.
+type UserVerificationResponse struct {
+	Code             int `json:"code"`
+	VerificationRate int `json:"verificationRate"`
 }
 
 // UserToJSON marshalls user struct.
@@ -78,4 +84,22 @@ func (client *Client) SendUserData(user User) (*UserResponse, *http.Response, er
 		return nil, resp, errors.Wrap(err, "unmarshaling failed")
 	}
 	return userResponse, resp, nil
+}
+
+// VerifyUser verifies user with given user id and language.
+func (client *Client) VerifyUser(verifyUser VerifyUser) (*UserVerificationResponse, *http.Response, error) {
+	b := VerifyUserToJSON(verifyUser)
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/user/verify", baseURL), bytes.NewBufferString(string(b)))
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to build request")
+	}
+	resp, err := client.HTTPClient.Do(req)
+	if err != nil {
+		return nil, resp, errors.Wrap(err, "request failed")
+	}
+	userVerificationResponse := new(UserVerificationResponse)
+	if err := json.NewDecoder(resp.Body).Decode(&userVerificationResponse); err != nil {
+		return nil, resp, errors.Wrap(err, "unmarshaling failed")
+	}
+	return userVerificationResponse, resp, nil
 }

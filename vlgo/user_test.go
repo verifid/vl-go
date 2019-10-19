@@ -30,6 +30,11 @@ const (
 	okResponse = `{
 		"code": 200, "message": "User created with received values.", "type": "success", "user_id": "37924286-c6c1-4f7a-a164-db8158171152"
 	}`
+
+	verifyUserOkResponse = `{
+		"code": 200,
+		"verificationRate": 85
+	}`
 )
 
 func TestInitStruct(t *testing.T) {
@@ -73,6 +78,26 @@ func TestSendUserData(t *testing.T) {
 
 	userResponse, resp, err := client.SendUserData(user)
 	assert.Nil(t, err)
-	assert.NotNil(t, userResponse)
+	assert.Equal(t, userResponse.Code, 200)
+	assert.NotNil(t, resp)
+}
+
+func TestVerifyUser(t *testing.T) {
+	verifyUser := VerifyUser{
+		UserID:   "userId",
+		Language: "en_core_web_sm"}
+	userVerificationResponse := new(UserVerificationResponse)
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(verifyUserOkResponse))
+	})
+	httpClient, teardown := testingHTTPClient(h)
+	defer teardown()
+
+	client := new(Client)
+	client.HTTPClient = httpClient
+
+	userVerificationResponse, resp, err := client.VerifyUser(verifyUser)
+	assert.Nil(t, err)
+	assert.Equal(t, userVerificationResponse.Code, 200)
 	assert.NotNil(t, resp)
 }
