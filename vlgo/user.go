@@ -34,9 +34,25 @@ type UserResponse struct {
 	UserID  string `json:"userId,omitempty"`
 }
 
-// UserToJSON marshallsuser struct.
+// VerifyUser is request model for user verification.
+type VerifyUser struct {
+	UserID   string `json:"userId"`
+	Language string `json:"language"`
+}
+
+// UserToJSON marshalls user struct.
 func UserToJSON(user User) []byte {
 	b, err := json.Marshal(user)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return b
+}
+
+// VerifyUserToJSON marshalls verfiy user struct.
+func VerifyUserToJSON(verifyUser VerifyUser) []byte {
+	b, err := json.Marshal(verifyUser)
 	if err != nil {
 		fmt.Println(err)
 		return nil
