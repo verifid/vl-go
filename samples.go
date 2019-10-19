@@ -28,6 +28,14 @@ func main() {
 	fmt.Println(resp)
 	fmt.Println(err)
 
+	verifyUser := vlgo.VerifyUser{
+		UserID:   "userId",
+		Language: "en_core_web_sm"}
+	userVerificationResponse, httResponse, err := client.VerifyUser(verifyUser)
+	fmt.Println(userVerificationResponse)
+	fmt.Println(httResponse)
+	fmt.Println(err)
+
 	path := path.Dir("/resources/2.png")
 	base64Str := client.ImageFileToBase64(path)
 	imageUpload := vlgo.ImageUpload{Image: base64Str, UserID: "userId"}
