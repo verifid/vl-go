@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	baseURL = "https://api.verifid.app/v1"
+	baseURL = "https://verifid.app"
 )
 
 // Client contains a http client where we use for all requests.
