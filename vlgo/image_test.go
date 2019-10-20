@@ -18,12 +18,12 @@ func TestUploadIdentity(t *testing.T) {
 	httpClient, teardown := testingHTTPClient(h)
 	defer teardown()
 
-	client := new(Client)
-	client.HTTPClient = httpClient
+	client := NewImageService(httpClient)
 
 	path := path.Dir("../resources/2.png")
-	imageUpload := ImageUpload{client.ImageFileToBase64(path), "userId"}
-	uploadResponse, resp, err := client.UploadIdentity(imageUpload, ImageType.Identity)
+	imageUpload := ImageUpload{client.Image.ImageFileToBase64(path), "userId"}
+
+	uploadResponse, resp, err := client.Image.UploadIdentity(imageUpload, ImageType.Identity)
 	assert.Nil(t, err)
 	assert.Equal(t, uploadResponse.Code, 200)
 	assert.NotNil(t, resp)
@@ -39,12 +39,12 @@ func TestUploadProfile(t *testing.T) {
 	httpClient, teardown := testingHTTPClient(h)
 	defer teardown()
 
-	client := new(Client)
-	client.HTTPClient = httpClient
+	client := NewImageService(httpClient)
 
 	path := path.Dir("../resources/2.png")
-	imageUpload := ImageUpload{client.ImageFileToBase64(path), "userId"}
-	uploadResponse, resp, err := client.UploadIdentity(imageUpload, ImageType.Profile)
+	imageUpload := ImageUpload{client.Image.ImageFileToBase64(path), "userId"}
+
+	uploadResponse, resp, err := client.Image.UploadProfile(imageUpload, ImageType.Profile)
 	assert.Nil(t, err)
 	assert.Equal(t, uploadResponse.Code, 200)
 	assert.NotNil(t, resp)

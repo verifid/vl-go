@@ -49,16 +49,6 @@ func TestInitStruct(t *testing.T) {
 	assert.Equal(t, user.Surname, "Stark")
 }
 
-func TestUserToJson(t *testing.T) {
-	user := User{
-		Country:     "United States",
-		DateOfBirth: "10.04.1980",
-		Name:        "Tony",
-		Surname:     "Stark"}
-	json := UserToJSON(user)
-	assert.Equal(t, json, []byte("{\"country\":\"United States\",\"dateOfBirth\":\"10.04.1980\",\"name\":\"Tony\",\"surname\":\"Stark\"}"))
-}
-
 func TestSendUserData(t *testing.T) {
 	user := User{
 		Country:     "United States",
@@ -73,10 +63,8 @@ func TestSendUserData(t *testing.T) {
 	httpClient, teardown := testingHTTPClient(h)
 	defer teardown()
 
-	client := new(Client)
-	client.HTTPClient = httpClient
-
-	userResponse, resp, err := client.SendUserData(user)
+	client := NewUserService(httpClient)
+	userResponse, resp, err := client.User.SendUserData(user)
 	assert.Nil(t, err)
 	assert.Equal(t, userResponse.Code, 200)
 	assert.NotNil(t, resp)
@@ -93,10 +81,8 @@ func TestVerifyUser(t *testing.T) {
 	httpClient, teardown := testingHTTPClient(h)
 	defer teardown()
 
-	client := new(Client)
-	client.HTTPClient = httpClient
-
-	userVerificationResponse, resp, err := client.VerifyUser(verifyUser)
+	client := NewUserService(httpClient)
+	userVerificationResponse, resp, err := client.User.VerifyUser(verifyUser)
 	assert.Nil(t, err)
 	assert.Equal(t, userVerificationResponse.Code, 200)
 	assert.NotNil(t, resp)

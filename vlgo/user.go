@@ -1,21 +1,21 @@
 package vlgo
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"net/http"
 
-	"github.com/pkg/errors"
+	"github.com/dghubble/sling"
 )
 
-const (
-	baseURL = "https://verifid.app"
-)
+// UserService provides an interface for user endpoints.
+type UserService struct {
+	sling *sling.Sling
+}
 
-// Client contains a http client where we use for all requests.
-type Client struct {
-	HTTPClient *http.Client
+// newUserService returns a new UserService.
+func newUserService(sling *sling.Sling) *UserService {
+	return &UserService{
+		sling: sling,
+	}
 }
 
 // User is request body for sending user data.
@@ -46,60 +46,19 @@ type UserVerificationResponse struct {
 	VerificationRate int `json:"verificationRate"`
 }
 
-// UserToJSON marshalls user struct.
-func UserToJSON(user User) []byte {
-	b, err := json.Marshal(user)
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	return b
-}
-
-// VerifyUserToJSON marshalls verfiy user struct.
-func VerifyUserToJSON(verifyUser VerifyUser) []byte {
-	b, err := json.Marshal(verifyUser)
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	return b
-}
-
 // SendUserData sends user data using with Client.
 // Takes user as a parameter.
 // Returns user response, http response and error.
-func (client *Client) SendUserData(user User) (*UserResponse, *http.Response, error) {
-	b := UserToJSON(user)
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/user/sendUserData", baseURL), bytes.NewBufferString(string(b)))
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to build request")
-	}
-	resp, err := client.HTTPClient.Do(req)
-	if err != nil {
-		return nil, resp, errors.Wrap(err, "request failed")
-	}
+func (s *UserService) SendUserData(user User) (*UserResponse, *http.Response, error) {
 	userResponse := new(UserResponse)
-	if err := json.NewDecoder(resp.Body).Decode(&userResponse); err != nil {
-		return nil, resp, errors.Wrap(err, "unmarshaling failed")
-	}
-	return userResponse, resp, nil
+	resp, err := s.sling.New().Post("/user/sendUserData").QueryStruct(user).ReceiveSuccess(userResponse)
+	return userResponse, resp, err
 }
 
 // VerifyUser verifies user with given user id and language.
-func (client *Client) VerifyUser(verifyUser VerifyUser) (*UserVerificationResponse, *http.Response, error) {
-	b := VerifyUserToJSON(verifyUser)
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/user/verify", baseURL), bytes.NewBufferString(string(b)))
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to build request")
-	}
-	resp, err := client.HTTPClient.Do(req)
-	if err != nil {
-		return nil, resp, errors.Wrap(err, "request failed")
-	}
+// func (client *Client) VerifyUser(verifyUser VerifyUser) (*UserVerificationResponse, *http.Response, error) {
+func (s *UserService) VerifyUser(verifyUser VerifyUser) (*UserVerificationResponse, *http.Response, error) {
 	userVerificationResponse := new(UserVerificationResponse)
-	if err := json.NewDecoder(resp.Body).Decode(&userVerificationResponse); err != nil {
-		return nil, resp, errors.Wrap(err, "unmarshaling failed")
-	}
-	return userVerificationResponse, resp, nil
+	resp, err := s.sling.New().Post("/user/verify").QueryStruct(verifyUser).ReceiveSuccess(userVerificationResponse)
+	return userVerificationResponse, resp, err
 }

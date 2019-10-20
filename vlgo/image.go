@@ -2,15 +2,25 @@ package vlgo
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 
-	"github.com/pkg/errors"
+	"github.com/dghubble/sling"
 )
+
+// ImageService provides an interface for image endpoints.
+type ImageService struct {
+	sling *sling.Sling
+}
+
+// newImageService returns a new ImageService.
+func newImageService(sling *sling.Sling) *ImageService {
+	return &ImageService{
+		sling: sling,
+	}
+}
 
 // ImageUpload is request model for image upload.
 type ImageUpload struct {
@@ -26,7 +36,7 @@ type ImageUploadResponse struct {
 }
 
 // ImageFileToBase64 read image file and creates base64 encoded string.
-func (client *Client) ImageFileToBase64(filePath string) string {
+func (imageService *ImageService) ImageFileToBase64(filePath string) string {
 	imgFile, err := os.Open(filePath)
 
 	if err != nil {
@@ -50,42 +60,22 @@ func (client *Client) ImageFileToBase64(filePath string) string {
 	return imgBase64Str
 }
 
-func imageModelToJSON(imageUpload ImageUpload) []byte {
-	b, err := json.Marshal(imageUpload)
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	return b
-}
-
-func (client *Client) uploadImage(imageUpload ImageUpload, imageType Enum) (*ImageUploadResponse, *http.Response, error) {
-	b := imageModelToJSON(imageUpload)
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/image/%s", baseURL, Enum.ValueOfImageType(imageType)), bytes.NewBufferString(string(b)))
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to build request")
-	}
-	resp, err := client.HTTPClient.Do(req)
-	if err != nil {
-		return nil, resp, errors.Wrap(err, "request failed")
-	}
+func (imageService *ImageService) uploadImage(imageUpload ImageUpload, imageType Enum) (*ImageUploadResponse, *http.Response, error) {
 	imageUploadResponse := new(ImageUploadResponse)
-	if err := json.NewDecoder(resp.Body).Decode(&imageUploadResponse); err != nil {
-		return nil, resp, errors.Wrap(err, "unmarshaling failed")
-	}
-	return imageUploadResponse, resp, nil
+	resp, err := imageService.sling.New().Post(fmt.Sprintf("/image/%s", Enum.ValueOfImageType(imageType))).QueryStruct(imageUpload).ReceiveSuccess(imageUploadResponse)
+	return imageUploadResponse, resp, err
 }
 
 // UploadIdentity uploads identity image of user.
 // Takes user id and image path as parameters.
 // Returns image upload response, http response and error.
-func (client *Client) UploadIdentity(imageUpload ImageUpload, imageType Enum) (*ImageUploadResponse, *http.Response, error) {
-	return client.uploadImage(imageUpload, imageType)
+func (imageService *ImageService) UploadIdentity(imageUpload ImageUpload, imageType Enum) (*ImageUploadResponse, *http.Response, error) {
+	return imageService.uploadImage(imageUpload, imageType)
 }
 
 // UploadProfile uploads profile image of user.
 // Takes user id and image path as parameters.
 // Returns image upload response, http response and error.
-func (client *Client) UploadProfile(imageUpload ImageUpload, imageType Enum) (*ImageUploadResponse, *http.Response, error) {
-	return client.uploadImage(imageUpload, imageType)
+func (imageService *ImageService) UploadProfile(imageUpload ImageUpload, imageType Enum) (*ImageUploadResponse, *http.Response, error) {
+	return imageService.uploadImage(imageUpload, imageType)
 }
