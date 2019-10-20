@@ -69,13 +69,13 @@ func (imageService *ImageService) uploadImage(imageUpload ImageUpload, imageType
 // UploadIdentity uploads identity image of user.
 // Takes user id and image path as parameters.
 // Returns image upload response, http response and error.
-func (imageService *ImageService) UploadIdentity(imageUpload ImageUpload, imageType Enum) (*ImageUploadResponse, *http.Response, error) {
-	return imageService.uploadImage(imageUpload, imageType)
+func (imageService *ImageService) UploadIdentity(imageUpload ImageUpload) (*ImageUploadResponse, *http.Response, error) {
+	return imageService.uploadImage(imageUpload, ImageType.Identity)
 }
 
 // UploadProfile uploads profile image of user.
 // Takes user id and image path as parameters.
 // Returns image upload response, http response and error.
-func (imageService *ImageService) UploadProfile(imageUpload ImageUpload, imageType Enum) (*ImageUploadResponse, *http.Response, error) {
-	return imageService.uploadImage(imageUpload, imageType)
+func (imageService *ImageService) UploadProfile(imageUpload ImageUpload) (*ImageUploadResponse, *http.Response, error) {
+	return imageService.uploadImage(imageUpload, ImageType.Profile)
 }

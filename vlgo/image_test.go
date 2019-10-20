@@ -23,7 +23,7 @@ func TestUploadIdentity(t *testing.T) {
 	path := path.Dir("../resources/2.png")
 	imageUpload := ImageUpload{client.Image.ImageFileToBase64(path), "userId"}
 
-	uploadResponse, resp, err := client.Image.UploadIdentity(imageUpload, ImageType.Identity)
+	uploadResponse, resp, err := client.Image.UploadIdentity(imageUpload)
 	assert.Nil(t, err)
 	assert.Equal(t, uploadResponse.Code, 200)
 	assert.NotNil(t, resp)
@@ -44,7 +44,7 @@ func TestUploadProfile(t *testing.T) {
 	path := path.Dir("../resources/2.png")
 	imageUpload := ImageUpload{client.Image.ImageFileToBase64(path), "userId"}
 
-	uploadResponse, resp, err := client.Image.UploadProfile(imageUpload, ImageType.Profile)
+	uploadResponse, resp, err := client.Image.UploadProfile(imageUpload)
 	assert.Nil(t, err)
 	assert.Equal(t, uploadResponse.Code, 200)
 	assert.NotNil(t, resp)
