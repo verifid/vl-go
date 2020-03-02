@@ -6,10 +6,11 @@ go:
   - "1.12.x"
 
 install:
-  - go get golang.org/x/lint/golint
+  - go get -u golang.org/x/lint/golint
   - go get -v -t ./vlgo
 
 script:
+  - golint ./vlgo
   - go test ./vlgo -race -coverprofile=coverage.txt -covermode=atomic
 
 after_success:
